@@ -1,1 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Ranking</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+<h1>🏆 Ranking</h1>
+
+<ul id="ranking"></ul>
+
+<button onclick="goBack()">⬅ Voltar</button>
+
+<script>
+function goBack() {
+  window.location.href = "index.html";
+}
+
+function renderRanking() {
+  let scores = JSON.parse(localStorage.getItem("ranking") || "[]");
+  const list = document.getElementById("ranking");
+
+  list.innerHTML = "";
+
+  scores.forEach((s, i) => {
+    const li = document.createElement("li");
+    li.innerText = `#${i+1} ${s.name} - Regra ${s.score}`;
+    list.appendChild(li);
+  });
+}
+
+renderRanking();
+</script>
+
+</body>
+</html>
