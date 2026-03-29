@@ -7,11 +7,12 @@
 </head>
 <body>
 
-<h1>🏆 Ranking</h1>
+<div class="container">
+  <h1>🏆 Ranking</h1>
+  <ul id="ranking"></ul>
 
-<ul id="ranking"></ul>
-
-<button onclick="goBack()">⬅ Voltar</button>
+  <button onclick="goBack()">⬅ Voltar</button>
+</div>
 
 <script>
 function goBack() {
@@ -26,7 +27,7 @@ function renderRanking() {
 
   scores.forEach((s, i) => {
     const li = document.createElement("li");
-    li.innerText = `#${i+1} ${s.name} - Regra ${s.score}`;
+    li.innerText = `#${i+1} ${s.name} — Regra ${s.score}`;
     list.appendChild(li);
   });
 }
