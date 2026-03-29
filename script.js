@@ -6,51 +6,54 @@ const mapImage = document.getElementById("mapImage");
 let rules = [];
 let currentRuleIndex = 0;
 let country = "";
+let fireActive = false;
+let originalPassword = "";
 
-// 🌍 imagens por país
+// 🌍 imagens
 const locations = [
-  {
-    country: "brazil",
-    img: "https://upload.wikimedia.org/wikipedia/commons/9/9e/Amazon_rainforest.jpg"
-  },
-  {
-    country: "japan",
-    img: "https://upload.wikimedia.org/wikipedia/commons/6/6e/Tokyo_Tower_and_surrounding_buildings.jpg"
-  },
-  {
-    country: "france",
-    img: "https://upload.wikimedia.org/wikipedia/commons/a/a8/Eiffel_Tower_Paris.jpg"
-  },
-  {
-    country: "canada",
-    img: "https://upload.wikimedia.org/wikipedia/commons/c/cf/Moraine_Lake_17092005.jpg"
-  },
-  {
-    country: "india",
-    img: "https://upload.wikimedia.org/wikipedia/commons/d/da/Taj-Mahal.jpg"
-  }
+  { country: "brazil", img: "https://upload.wikimedia.org/wikipedia/commons/9/9e/Amazon_rainforest.jpg" },
+  { country: "japan", img: "https://upload.wikimedia.org/wikipedia/commons/6/6e/Tokyo_Tower_and_surrounding_buildings.jpg" },
+  { country: "france", img: "https://upload.wikimedia.org/wikipedia/commons/a/a8/Eiffel_Tower_Paris.jpg" },
+  { country: "canada", img: "https://upload.wikimedia.org/wikipedia/commons/c/cf/Moraine_Lake_17092005.jpg" },
+  { country: "india", img: "https://upload.wikimedia.org/wikipedia/commons/d/da/Taj-Mahal.jpg" }
 ];
 
-// 🔥 fogo que se espalha
-function spreadFire() {
-  if (!input.value) return;
+// 🔥 EVENTO DE FOGO
+function startFire() {
+  fireActive = true;
+  originalPassword = input.value;
 
-  let value = input.value.split("");
+  let chars = input.value.split("");
 
-  // adiciona fogo
-  if (Math.random() < 0.5) {
-    value.splice(Math.floor(Math.random() * value.length), 0, "🔥");
-  }
-
-  // espalha
-  for (let i = 0; i < value.length; i++) {
-    if (value[i] === "🔥") {
-      if (Math.random() < 0.3 && i > 0) value[i - 1] = "🔥";
-      if (Math.random() < 0.3 && i < value.length - 1) value[i + 1] = "🔥";
+  // substitui letras por fogo
+  for (let i = 0; i < chars.length; i++) {
+    if (Math.random() < 0.6) {
+      chars[i] = "🔥";
     }
   }
 
-  input.value = value.join("");
+  input.value = chars.join("");
+}
+
+// 🔥 espalhar fogo enquanto ativo
+function spreadFire() {
+  if (!fireActive) return;
+
+  let chars = input.value.split("");
+
+  for (let i = 0; i < chars.length; i++) {
+    if (chars[i] === "🔥") {
+      if (Math.random() < 0.4 && i > 0) chars[i - 1] = "🔥";
+      if (Math.random() < 0.4 && i < chars.length - 1) chars[i + 1] = "🔥";
+    }
+  }
+
+  input.value = chars.join("");
+
+  // terminou o fogo
+  if (!input.value.includes("🔥")) {
+    fireActive = false;
+  }
 }
 
 // 📜 REGRAS
@@ -78,28 +81,38 @@ function generateRules() {
         !input.value.includes("🔥🥚") &&
         !input.value.includes("🥚🔥")
     },
+
+    // 🌍 MAPA
     {
       text: "Descubra o país pela imagem 🌍",
       check: () => input.value.toLowerCase().includes(country),
       onStart: () => {
         const random = locations[Math.floor(Math.random() * locations.length)];
-
         country = random.country;
         mapImage.src = random.img;
-
         mapDiv.style.display = "block";
       },
       onComplete: () => {
         mapDiv.style.display = "none";
       }
     },
+
+    // 🔥 REGRA DO FOGO
+    {
+      text: "🔥 A senha pegou fogo! Apague tudo e reescreva",
+      check: () => !fireActive,
+      onStart: () => {
+        startFire();
+      }
+    },
+
     {
       text: "A senha deve conter o número de caracteres dela mesma",
       check: () => input.value.includes(input.value.length.toString())
     }
   ];
 
-  // até 50 regras
+  // completar até 50
   for (let i = rules.length; i < 50; i++) {
     rules.push({
       text: `Senha deve ter mais de ${i} caracteres`,
@@ -127,16 +140,14 @@ function renderRules() {
   }
 }
 
-// 🧠 lógica principal
+// 🧠 lógica
 function checkRules() {
   const currentRule = rules[currentRuleIndex];
   if (!currentRule) return;
 
   if (currentRule.check()) {
 
-    if (currentRule.onComplete) {
-      currentRule.onComplete();
-    }
+    if (currentRule.onComplete) currentRule.onComplete();
 
     currentRuleIndex++;
 
@@ -154,11 +165,11 @@ function checkRules() {
   }
 }
 
-// ⏱ loop do jogo
+// ⏱ loop
 setInterval(() => {
   spreadFire();
   checkRules();
-}, 2000);
+}, 1500);
 
 // ⌨ input
 input.addEventListener("input", checkRules);
