@@ -5,7 +5,7 @@ let playerName = "";
 let currentRuleIndex = 0;
 let rules = [];
 
-// 🧠 regras
+// 🧠 regras tipo IA
 function generateRandomRule() {
   const types = [
     {
@@ -21,11 +21,15 @@ function generateRandomRule() {
       check: (v) => v.includes("🥚")
     },
     {
-      text: "Senha mínima 8 caracteres",
+      text: "Mínimo 8 caracteres",
       check: (v) => v.length >= 8
     },
     {
-      text: "Não pode ter letra 'a'",
+      text: "Deve conter símbolo (!@#)",
+      check: (v) => /[!@#]/.test(v)
+    },
+    {
+      text: "Não pode conter 'a'",
       check: (v) => !v.includes("a")
     }
   ];
@@ -35,19 +39,16 @@ function generateRandomRule() {
 
 function generateRules() {
   rules = [];
-  for (let i = 0; i < 1000; i++) {
+  for (let i = 0; i < 500; i++) {
     rules.push(generateRandomRule());
   }
 }
 
-// 🎮 start
+// START
 function startGame() {
   playerName = document.getElementById("playerName").value;
 
-  if (!playerName) {
-    alert("Digite um nome!");
-    return;
-  }
+  if (!playerName) return alert("Digite um nome!");
 
   localStorage.setItem("currentPlayer", playerName);
 
@@ -60,7 +61,7 @@ function startGame() {
   renderRules();
 }
 
-// 🎨 render
+// RENDER
 function renderRules() {
   rulesList.innerHTML = "";
 
@@ -69,17 +70,17 @@ function renderRules() {
 
     if (i < currentRuleIndex) {
       li.innerText = `✅ ${rules[i].text}`;
-      li.style.color = "lightgreen";
+      li.style.color = "#7CFC00";
     } else {
       li.innerText = `❌ ${rules[i].text}`;
-      li.style.color = "red";
+      li.style.color = "#ff4d4d";
     }
 
     rulesList.appendChild(li);
   }
 }
 
-// 🧠 check
+// CHECK
 function checkRules() {
   const rule = rules[currentRuleIndex];
   if (!rule) return;
@@ -92,28 +93,13 @@ function checkRules() {
 
 passwordInput.addEventListener("input", checkRules);
 
-// 💾 salvar ranking
-function saveScore() {
-  let scores = JSON.parse(localStorage.getItem("ranking") || "[]");
-
-  scores.push({
-    name: playerName,
-    score: currentRuleIndex
-  });
-
-  scores.sort((a, b) => b.score - a.score);
-  scores = scores.slice(0, 10);
-
-  localStorage.setItem("ranking", JSON.stringify(scores));
-}
-
-// 📂 menu
+// MENU
 function toggleMenu() {
   const d = document.getElementById("dropdown");
   d.style.display = d.style.display === "block" ? "none" : "block";
 }
 
-// 🔗 ir ranking
+// IR RANKING
 function goRanking() {
   window.location.href = "ranking.html";
 }
