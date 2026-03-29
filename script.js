@@ -1,14 +1,15 @@
 const input = document.getElementById("password");
 const rulesList = document.getElementById("rules");
+const mapDiv = document.getElementById("map");
 
 let rules = [];
-let activeRules = [];
+let currentRuleIndex = 0;
 let country = "";
 
-// 🌍 lista de países
+// 🌍 países
 const countries = [
-  "brazil", "japan", "canada", "france", "germany",
-  "india", "china", "mexico", "italy", "spain"
+  "brazil","japan","canada","france","germany",
+  "india","china","mexico","italy","spain"
 ];
 
 // 🌍 MAPA
@@ -21,7 +22,7 @@ function initMap() {
   country = countries[Math.floor(Math.random() * countries.length)];
 
   new google.maps.StreetViewPanorama(
-    document.getElementById("map"),
+    mapDiv,
     {
       position: randomLocation,
       pov: { heading: 165, pitch: 0 },
@@ -30,111 +31,133 @@ function initMap() {
   );
 }
 
-// 🔥 fogo que se espalha
+// 🔥 fogo
 function spreadFire() {
   if (!input.value) return;
 
   let value = input.value.split("");
 
-  // adicionar fogo aleatório
-  if (Math.random() < 0.6) {
+  if (Math.random() < 0.5) {
     value.splice(Math.floor(Math.random() * value.length), 0, "🔥");
   }
 
-  // espalhar fogo existente
   for (let i = 0; i < value.length; i++) {
     if (value[i] === "🔥") {
-      if (Math.random() < 0.4 && i > 0) value[i - 1] = "🔥";
-      if (Math.random() < 0.4 && i < value.length - 1) value[i + 1] = "🔥";
+      if (Math.random() < 0.3 && i > 0) value[i - 1] = "🔥";
+      if (Math.random() < 0.3 && i < value.length - 1) value[i + 1] = "🔥";
     }
   }
 
   input.value = value.join("");
 }
 
-// 📜 GERAR REGRAS
+// 📜 REGRAS EM ORDEM
 function generateRules() {
   rules = [
     {
-      text: "A senha deve ter pelo menos 5 caracteres",
+      text: "Mínimo de 5 caracteres",
       check: () => input.value.length >= 5
     },
     {
-      text: "A senha deve conter um número",
+      text: "Deve conter número",
       check: () => /\d/.test(input.value)
     },
     {
-      text: "A senha deve conter uma letra maiúscula",
+      text: "Deve conter letra maiúscula",
       check: () => /[A-Z]/.test(input.value)
     },
     {
-      text: "A senha deve conter um 🥚",
+      text: "Deve conter 🥚",
       check: () => input.value.includes("🥚")
     },
     {
-      text: "O 🥚 não pode encostar no fogo",
+      text: "O 🥚 não pode encostar no 🔥",
       check: () =>
         !input.value.includes("🔥🥚") &&
         !input.value.includes("🥚🔥")
     },
     {
-      text: () => `A senha deve conter o país: ${country}`,
-      check: () => input.value.toLowerCase().includes(country)
+      text: "Descubra o país no mapa 🌍",
+      check: () => input.value.toLowerCase().includes(country),
+      onStart: () => {
+        mapDiv.style.display = "block";
+        initMap();
+      },
+      onComplete: () => {
+        mapDiv.style.display = "none";
+      }
     },
     {
-      text: "A senha deve conter o número de caracteres dela mesma",
+      text: "A senha deve conter o tamanho dela mesma",
       check: () => input.value.includes(input.value.length.toString())
     }
   ];
 
-  // completar até 50 regras
+  // completar até 50
   for (let i = rules.length; i < 50; i++) {
     rules.push({
-      text: `A senha deve ter mais de ${i} caracteres`,
+      text: `Senha > ${i} caracteres`,
       check: () => input.value.length > i
     });
   }
-
-  activeRules = [...rules];
 }
 
-// 🎨 RENDER REGRAS
+// 🎨 render
 function renderRules() {
   rulesList.innerHTML = "";
 
-  activeRules.forEach((rule, i) => {
+  for (let i = 0; i <= currentRuleIndex; i++) {
     const li = document.createElement("li");
 
-    const text = typeof rule.text === "function"
-      ? rule.text()
-      : rule.text;
+    if (i < currentRuleIndex) {
+      li.innerText = `✅ ${rules[i].text}`;
+      li.style.color = "lightgreen";
+    } else {
+      li.innerText = `❌ ${rules[i].text}`;
+      li.style.color = "red";
+    }
 
-    li.innerText = `❌ Regra ${i + 1}: ${text}`;
     rulesList.appendChild(li);
-  });
-}
-
-// 🧠 VALIDAR
-function checkRules() {
-  activeRules = rules.filter(rule => !rule.check());
-  renderRules();
-
-  if (activeRules.length === 0) {
-    alert("🎉 Você venceu o caos!");
   }
 }
 
-// ⏱ LOOP DO JOGO
+// 🧠 lógica principal
+function checkRules() {
+  const currentRule = rules[currentRuleIndex];
+
+  if (!currentRule) return;
+
+  if (currentRule.check()) {
+
+    if (currentRule.onComplete) {
+      currentRule.onComplete();
+    }
+
+    currentRuleIndex++;
+
+    if (rules[currentRuleIndex]?.onStart) {
+      rules[currentRuleIndex].onStart();
+    }
+
+    renderRules();
+
+    if (currentRuleIndex >= rules.length) {
+      alert("🎉 Você venceu!");
+    }
+  } else {
+    renderRules();
+  }
+}
+
+// ⏱ loop
 setInterval(() => {
   spreadFire();
   checkRules();
 }, 2000);
 
-// ⌨ INPUT
-input.addEventListener("input", () => {
-  checkRules();
-});
+// ⌨ input
+input.addEventListener("input", checkRules);
 
-// 🚀 START
+// 🚀 start
 generateRules();
 renderRules();
