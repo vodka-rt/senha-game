@@ -1,46 +1,48 @@
 const input = document.getElementById("password");
 const rulesList = document.getElementById("rules");
 const mapDiv = document.getElementById("map");
+const mapImage = document.getElementById("mapImage");
 
 let rules = [];
 let currentRuleIndex = 0;
 let country = "";
 
-// 🌍 países
-const countries = [
-  "brazil","japan","canada","france","germany",
-  "india","china","mexico","italy","spain"
+// 🌍 imagens por país
+const locations = [
+  {
+    country: "brazil",
+    img: "https://upload.wikimedia.org/wikipedia/commons/9/9e/Amazon_rainforest.jpg"
+  },
+  {
+    country: "japan",
+    img: "https://upload.wikimedia.org/wikipedia/commons/6/6e/Tokyo_Tower_and_surrounding_buildings.jpg"
+  },
+  {
+    country: "france",
+    img: "https://upload.wikimedia.org/wikipedia/commons/a/a8/Eiffel_Tower_Paris.jpg"
+  },
+  {
+    country: "canada",
+    img: "https://upload.wikimedia.org/wikipedia/commons/c/cf/Moraine_Lake_17092005.jpg"
+  },
+  {
+    country: "india",
+    img: "https://upload.wikimedia.org/wikipedia/commons/d/da/Taj-Mahal.jpg"
+  }
 ];
 
-// 🌍 MAPA
-function initMap() {
-  const randomLocation = {
-    lat: (Math.random() * 140) - 70,
-    lng: (Math.random() * 360) - 180
-  };
-
-  country = countries[Math.floor(Math.random() * countries.length)];
-
-  new google.maps.StreetViewPanorama(
-    mapDiv,
-    {
-      position: randomLocation,
-      pov: { heading: 165, pitch: 0 },
-      zoom: 1
-    }
-  );
-}
-
-// 🔥 fogo
+// 🔥 fogo que se espalha
 function spreadFire() {
   if (!input.value) return;
 
   let value = input.value.split("");
 
+  // adiciona fogo
   if (Math.random() < 0.5) {
     value.splice(Math.floor(Math.random() * value.length), 0, "🔥");
   }
 
+  // espalha
   for (let i = 0; i < value.length; i++) {
     if (value[i] === "🔥") {
       if (Math.random() < 0.3 && i > 0) value[i - 1] = "🔥";
@@ -51,7 +53,7 @@ function spreadFire() {
   input.value = value.join("");
 }
 
-// 📜 REGRAS EM ORDEM
+// 📜 REGRAS
 function generateRules() {
   rules = [
     {
@@ -77,26 +79,30 @@ function generateRules() {
         !input.value.includes("🥚🔥")
     },
     {
-      text: "Descubra o país no mapa 🌍",
+      text: "Descubra o país pela imagem 🌍",
       check: () => input.value.toLowerCase().includes(country),
       onStart: () => {
+        const random = locations[Math.floor(Math.random() * locations.length)];
+
+        country = random.country;
+        mapImage.src = random.img;
+
         mapDiv.style.display = "block";
-        initMap();
       },
       onComplete: () => {
         mapDiv.style.display = "none";
       }
     },
     {
-      text: "A senha deve conter o tamanho dela mesma",
+      text: "A senha deve conter o número de caracteres dela mesma",
       check: () => input.value.includes(input.value.length.toString())
     }
   ];
 
-  // completar até 50
+  // até 50 regras
   for (let i = rules.length; i < 50; i++) {
     rules.push({
-      text: `Senha > ${i} caracteres`,
+      text: `Senha deve ter mais de ${i} caracteres`,
       check: () => input.value.length > i
     });
   }
@@ -124,7 +130,6 @@ function renderRules() {
 // 🧠 lógica principal
 function checkRules() {
   const currentRule = rules[currentRuleIndex];
-
   if (!currentRule) return;
 
   if (currentRule.check()) {
@@ -142,14 +147,14 @@ function checkRules() {
     renderRules();
 
     if (currentRuleIndex >= rules.length) {
-      alert("🎉 Você venceu!");
+      alert("🎉 Você venceu o caos!");
     }
   } else {
     renderRules();
   }
 }
 
-// ⏱ loop
+// ⏱ loop do jogo
 setInterval(() => {
   spreadFire();
   checkRules();
