@@ -1,55 +1,39 @@
-body {
-  background: #111;
-  color: white;
-  font-family: Arial;
-  text-align: center;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Ranking</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>🏆 Ranking</h1>
+  <ul id="ranking"></ul>
+
+  <button onclick="goBack()">⬅ Voltar</button>
+</div>
+
+<script>
+function goBack() {
+  window.location.href = "index.html";
 }
 
-/* MENU */
-.menu {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+function renderRanking() {
+  let scores = JSON.parse(localStorage.getItem("ranking") || "[]");
+  const list = document.getElementById("ranking");
+
+  list.innerHTML = "";
+
+  scores.forEach((s, i) => {
+    const li = document.createElement("li");
+    li.innerText = `#${i+1} ${s.name} — Regra ${s.score}`;
+    list.appendChild(li);
+  });
 }
 
-.menu button {
-  font-size: 24px;
-  background: none;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
+renderRanking();
+</script>
 
-.dropdown {
-  display: none;
-  background: #222;
-  padding: 10px;
-  border-radius: 8px;
-  position: absolute;
-  right: 0;
-}
-
-.dropdown button {
-  margin-top: 5px;
-}
-
-/* INPUT */
-input {
-  padding: 10px;
-  font-size: 16px;
-  margin: 5px;
-}
-
-/* LISTA */
-ul {
-  max-width: 500px;
-  margin: auto;
-  text-align: left;
-}
-
-li {
-  background: #222;
-  margin: 5px;
-  padding: 10px;
-  border-radius: 8px;
-}
+</body>
+</html>
