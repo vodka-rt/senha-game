@@ -7,25 +7,31 @@
 </head>
 <body>
 
-<!-- MENU -->
-<div class="menu">
-  <button onclick="toggleMenu()">⋮</button>
-  <div id="dropdown" class="dropdown">
-    <p id="playerDisplay"></p>
-    <button onclick="goRanking()">🏆 Ranking</button>
+<div class="topbar">
+  <div id="playerDisplay">👤</div>
+
+  <div class="menu">
+    <button onclick="toggleMenu()">⋮</button>
+    <div id="dropdown" class="dropdown">
+      <button onclick="goRanking()">🏆 Ranking</button>
+    </div>
   </div>
 </div>
 
-<h1>🎮 Senha Impossível</h1>
+<div class="container">
 
-<div id="start">
-  <input id="playerName" placeholder="Seu nome..." />
-  <button onclick="startGame()">Começar</button>
-</div>
+  <h1>Senha Impossível</h1>
 
-<div id="game" style="display:none;">
-  <input id="password" placeholder="Digite sua senha..." />
-  <ul id="rules"></ul>
+  <div id="start">
+    <input id="playerName" placeholder="Seu nome..." />
+    <button onclick="startGame()">Começar</button>
+  </div>
+
+  <div id="game" style="display:none;">
+    <input id="password" placeholder="Digite sua senha..." />
+    <ul id="rules"></ul>
+  </div>
+
 </div>
 
 <script src="script.js"></script>
