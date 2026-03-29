@@ -1,16 +1,15 @@
 const passwordInput = document.getElementById("password");
 const rulesList = document.getElementById("rules");
-const rankingList = document.getElementById("ranking");
 
 let playerName = "";
 let currentRuleIndex = 0;
 let rules = [];
 
-// 🧠 GERADOR DE REGRAS (IA fake)
+// 🧠 regras
 function generateRandomRule() {
   const types = [
     {
-      text: "Deve conter um número",
+      text: "Deve conter número",
       check: (v) => /\d/.test(v)
     },
     {
@@ -22,30 +21,20 @@ function generateRandomRule() {
       check: (v) => v.includes("🥚")
     },
     {
-      text: "Senha deve ter pelo menos 8 caracteres",
+      text: "Senha mínima 8 caracteres",
       check: (v) => v.length >= 8
     },
     {
-      text: "Deve conter um símbolo (!@#)",
-      check: (v) => /[!@#]/.test(v)
-    },
-    {
-      text: "Não pode conter a letra 'a'",
+      text: "Não pode ter letra 'a'",
       check: (v) => !v.includes("a")
-    },
-    {
-      text: "Deve conter o tamanho da senha",
-      check: (v) => v.includes(v.length.toString())
     }
   ];
 
   return types[Math.floor(Math.random() * types.length)];
 }
 
-// 📜 iniciar regras
 function generateRules() {
   rules = [];
-
   for (let i = 0; i < 1000; i++) {
     rules.push(generateRandomRule());
   }
@@ -60,8 +49,12 @@ function startGame() {
     return;
   }
 
+  localStorage.setItem("currentPlayer", playerName);
+
   document.getElementById("start").style.display = "none";
   document.getElementById("game").style.display = "block";
+
+  document.getElementById("playerDisplay").innerText = "👤 " + playerName;
 
   generateRules();
   renderRules();
@@ -89,7 +82,6 @@ function renderRules() {
 // 🧠 check
 function checkRules() {
   const rule = rules[currentRuleIndex];
-
   if (!rule) return;
 
   if (rule.check(passwordInput.value)) {
@@ -98,7 +90,6 @@ function checkRules() {
   }
 }
 
-// ⌨ input
 passwordInput.addEventListener("input", checkRules);
 
 // 💾 salvar ranking
@@ -114,31 +105,15 @@ function saveScore() {
   scores = scores.slice(0, 10);
 
   localStorage.setItem("ranking", JSON.stringify(scores));
-
-  renderRanking();
 }
 
-// 🏆 render ranking
-function renderRanking() {
-  let scores = JSON.parse(localStorage.getItem("ranking") || "[]");
-
-  rankingList.innerHTML = "";
-
-  scores.forEach((s, i) => {
-    const li = document.createElement("li");
-    li.innerText = `#${i + 1} ${s.name} - Regra ${s.score}`;
-    rankingList.appendChild(li);
-  });
+// 📂 menu
+function toggleMenu() {
+  const d = document.getElementById("dropdown");
+  d.style.display = d.style.display === "block" ? "none" : "block";
 }
 
-// ⏱ detectar derrota (simples)
-setInterval(() => {
-  if (passwordInput.value.length > 100) {
-    alert("💀 Você perdeu!");
-    saveScore();
-    location.reload();
-  }
-}, 1000);
-
-// carregar ranking
-renderRanking();
+// 🔗 ir ranking
+function goRanking() {
+  window.location.href = "ranking.html";
+}
