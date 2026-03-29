@@ -1,124 +1,70 @@
-const input = document.getElementById("password");
+const passwordInput = document.getElementById("password");
 const rulesList = document.getElementById("rules");
-const mapDiv = document.getElementById("map");
-const mapImage = document.getElementById("mapImage");
+const rankingList = document.getElementById("ranking");
 
-let rules = [];
+let playerName = "";
 let currentRuleIndex = 0;
-let country = "";
-let fireActive = false;
-let originalPassword = "";
+let rules = [];
 
-// 🌍 imagens
-const locations = [
-  { country: "brazil", img: "https://upload.wikimedia.org/wikipedia/commons/9/9e/Amazon_rainforest.jpg" },
-  { country: "japan", img: "https://upload.wikimedia.org/wikipedia/commons/6/6e/Tokyo_Tower_and_surrounding_buildings.jpg" },
-  { country: "france", img: "https://upload.wikimedia.org/wikipedia/commons/a/a8/Eiffel_Tower_Paris.jpg" },
-  { country: "canada", img: "https://upload.wikimedia.org/wikipedia/commons/c/cf/Moraine_Lake_17092005.jpg" },
-  { country: "india", img: "https://upload.wikimedia.org/wikipedia/commons/d/da/Taj-Mahal.jpg" }
-];
-
-// 🔥 EVENTO DE FOGO
-function startFire() {
-  fireActive = true;
-  originalPassword = input.value;
-
-  let chars = input.value.split("");
-
-  // substitui letras por fogo
-  for (let i = 0; i < chars.length; i++) {
-    if (Math.random() < 0.6) {
-      chars[i] = "🔥";
-    }
-  }
-
-  input.value = chars.join("");
-}
-
-// 🔥 espalhar fogo enquanto ativo
-function spreadFire() {
-  if (!fireActive) return;
-
-  let chars = input.value.split("");
-
-  for (let i = 0; i < chars.length; i++) {
-    if (chars[i] === "🔥") {
-      if (Math.random() < 0.4 && i > 0) chars[i - 1] = "🔥";
-      if (Math.random() < 0.4 && i < chars.length - 1) chars[i + 1] = "🔥";
-    }
-  }
-
-  input.value = chars.join("");
-
-  // terminou o fogo
-  if (!input.value.includes("🔥")) {
-    fireActive = false;
-  }
-}
-
-// 📜 REGRAS
-function generateRules() {
-  rules = [
+// 🧠 GERADOR DE REGRAS (IA fake)
+function generateRandomRule() {
+  const types = [
     {
-      text: "Mínimo de 5 caracteres",
-      check: () => input.value.length >= 5
-    },
-    {
-      text: "Deve conter número",
-      check: () => /\d/.test(input.value)
+      text: "Deve conter um número",
+      check: (v) => /\d/.test(v)
     },
     {
       text: "Deve conter letra maiúscula",
-      check: () => /[A-Z]/.test(input.value)
+      check: (v) => /[A-Z]/.test(v)
     },
     {
       text: "Deve conter 🥚",
-      check: () => input.value.includes("🥚")
+      check: (v) => v.includes("🥚")
     },
     {
-      text: "O 🥚 não pode encostar no 🔥",
-      check: () =>
-        !input.value.includes("🔥🥚") &&
-        !input.value.includes("🥚🔥")
+      text: "Senha deve ter pelo menos 8 caracteres",
+      check: (v) => v.length >= 8
     },
-
-    // 🌍 MAPA
     {
-      text: "Descubra o país pela imagem 🌍",
-      check: () => input.value.toLowerCase().includes(country),
-      onStart: () => {
-        const random = locations[Math.floor(Math.random() * locations.length)];
-        country = random.country;
-        mapImage.src = random.img;
-        mapDiv.style.display = "block";
-      },
-      onComplete: () => {
-        mapDiv.style.display = "none";
-      }
+      text: "Deve conter um símbolo (!@#)",
+      check: (v) => /[!@#]/.test(v)
     },
-
-    // 🔥 REGRA DO FOGO
     {
-      text: "🔥 A senha pegou fogo! Apague tudo e reescreva",
-      check: () => !fireActive,
-      onStart: () => {
-        startFire();
-      }
+      text: "Não pode conter a letra 'a'",
+      check: (v) => !v.includes("a")
     },
-
     {
-      text: "A senha deve conter o número de caracteres dela mesma",
-      check: () => input.value.includes(input.value.length.toString())
+      text: "Deve conter o tamanho da senha",
+      check: (v) => v.includes(v.length.toString())
     }
   ];
 
-  // completar até 50
-  for (let i = rules.length; i < 50; i++) {
-    rules.push({
-      text: `Senha deve ter mais de ${i} caracteres`,
-      check: () => input.value.length > i
-    });
+  return types[Math.floor(Math.random() * types.length)];
+}
+
+// 📜 iniciar regras
+function generateRules() {
+  rules = [];
+
+  for (let i = 0; i < 1000; i++) {
+    rules.push(generateRandomRule());
   }
+}
+
+// 🎮 start
+function startGame() {
+  playerName = document.getElementById("playerName").value;
+
+  if (!playerName) {
+    alert("Digite um nome!");
+    return;
+  }
+
+  document.getElementById("start").style.display = "none";
+  document.getElementById("game").style.display = "block";
+
+  generateRules();
+  renderRules();
 }
 
 // 🎨 render
@@ -140,40 +86,59 @@ function renderRules() {
   }
 }
 
-// 🧠 lógica
+// 🧠 check
 function checkRules() {
-  const currentRule = rules[currentRuleIndex];
-  if (!currentRule) return;
+  const rule = rules[currentRuleIndex];
 
-  if (currentRule.check()) {
+  if (!rule) return;
 
-    if (currentRule.onComplete) currentRule.onComplete();
-
+  if (rule.check(passwordInput.value)) {
     currentRuleIndex++;
-
-    if (rules[currentRuleIndex]?.onStart) {
-      rules[currentRuleIndex].onStart();
-    }
-
-    renderRules();
-
-    if (currentRuleIndex >= rules.length) {
-      alert("🎉 Você venceu o caos!");
-    }
-  } else {
     renderRules();
   }
 }
 
-// ⏱ loop
-setInterval(() => {
-  spreadFire();
-  checkRules();
-}, 1500);
-
 // ⌨ input
-input.addEventListener("input", checkRules);
+passwordInput.addEventListener("input", checkRules);
 
-// 🚀 start
-generateRules();
-renderRules();
+// 💾 salvar ranking
+function saveScore() {
+  let scores = JSON.parse(localStorage.getItem("ranking") || "[]");
+
+  scores.push({
+    name: playerName,
+    score: currentRuleIndex
+  });
+
+  scores.sort((a, b) => b.score - a.score);
+  scores = scores.slice(0, 10);
+
+  localStorage.setItem("ranking", JSON.stringify(scores));
+
+  renderRanking();
+}
+
+// 🏆 render ranking
+function renderRanking() {
+  let scores = JSON.parse(localStorage.getItem("ranking") || "[]");
+
+  rankingList.innerHTML = "";
+
+  scores.forEach((s, i) => {
+    const li = document.createElement("li");
+    li.innerText = `#${i + 1} ${s.name} - Regra ${s.score}`;
+    rankingList.appendChild(li);
+  });
+}
+
+// ⏱ detectar derrota (simples)
+setInterval(() => {
+  if (passwordInput.value.length > 100) {
+    alert("💀 Você perdeu!");
+    saveScore();
+    location.reload();
+  }
+}, 1000);
+
+// carregar ranking
+renderRanking();
