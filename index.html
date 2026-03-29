@@ -7,6 +7,15 @@
 </head>
 <body>
 
+<!-- MENU -->
+<div class="menu">
+  <button onclick="toggleMenu()">⋮</button>
+  <div id="dropdown" class="dropdown">
+    <p id="playerDisplay"></p>
+    <button onclick="goRanking()">🏆 Ranking</button>
+  </div>
+</div>
+
 <h1>🎮 Senha Impossível</h1>
 
 <div id="start">
@@ -16,13 +25,8 @@
 
 <div id="game" style="display:none;">
   <input id="password" placeholder="Digite sua senha..." />
-
-  <h2>Regras</h2>
   <ul id="rules"></ul>
 </div>
-
-<h2>🏆 Ranking</h2>
-<ul id="ranking"></ul>
 
 <script src="script.js"></script>
 
