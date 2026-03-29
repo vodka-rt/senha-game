@@ -7,17 +7,22 @@
 </head>
 <body>
 
-<h1>🔥 Senha Impossível</h1>
+<h1>🎮 Senha Impossível</h1>
 
-<input id="password" placeholder="Digite sua senha..." />
-
-<!-- MAPA (IMAGEM) -->
-<div id="map" style="display:none;">
-  <img id="mapImage">
+<div id="start">
+  <input id="playerName" placeholder="Seu nome..." />
+  <button onclick="startGame()">Começar</button>
 </div>
 
-<h2>Regras</h2>
-<ul id="rules"></ul>
+<div id="game" style="display:none;">
+  <input id="password" placeholder="Digite sua senha..." />
+
+  <h2>Regras</h2>
+  <ul id="rules"></ul>
+</div>
+
+<h2>🏆 Ranking</h2>
+<ul id="ranking"></ul>
 
 <script src="script.js"></script>
 
